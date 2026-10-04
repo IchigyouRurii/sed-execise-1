@@ -34,8 +34,8 @@ def get_note(note_id):
 @note_bp.route('/notes/<int:note_id>', methods=['PUT'])
 def update_note(note_id):
     """Update a specific note"""
+    note = Note.query.get_or_404(note_id)
     try:
-        note = Note.query.get_or_404(note_id)
         data = request.json
         
         if not data:
@@ -52,8 +52,8 @@ def update_note(note_id):
 @note_bp.route('/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
     """Delete a specific note"""
+    note = Note.query.get_or_404(note_id)
     try:
-        note = Note.query.get_or_404(note_id)
         db.session.delete(note)
         db.session.commit()
         return '', 204
@@ -73,4 +73,3 @@ def search_notes():
     ).order_by(Note.updated_at.desc()).all()
     
     return jsonify([note.to_dict() for note in notes])
-

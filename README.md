@@ -9,6 +9,7 @@ A modern, responsive web application for managing personal notes with a beautifu
 - **Delete Notes**: Remove notes you no longer need
 - **Search Notes**: Find notes quickly by searching titles and content
 - **Auto-save**: Notes are automatically saved as you type
+- **Translate Notes**: Translate a note's title and content into Chinese or English with OpenRouter, then review before saving
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 - **Modern UI**: Beautiful gradient design with smooth animations
 - **Real-time Updates**: Instant feedback and updates
@@ -30,7 +31,8 @@ The application is deployed and accessible at: **https://3dhkilc88dkk.manus.spac
 - **Flask-CORS**: Cross-origin resource sharing support
 
 ### Database
-- **SQLite**: Lightweight, file-based database for data persistence
+- **Supabase PostgreSQL**: Shared online database when `DATABASE_URL` is set
+- **SQLite**: Local fallback when `DATABASE_URL` is not set
 
 ## 📁 Project Structure
 
@@ -42,14 +44,16 @@ notetaking-app/
 │   │   └── note.py          # Note model with database schema
 │   ├── routes/
 │   │   ├── user.py          # User API routes (template)
-│   │   └── note.py          # Note API endpoints
+│   │   ├── note.py          # Note API endpoints
+│   │   └── translate.py     # Translation endpoint
 │   ├── static/
 │   │   ├── index.html       # Frontend application
 │   │   └── favicon.ico      # Application icon
-│   ├── database/
-│   │   └── app.db           # SQLite database file
 │   └── main.py              # Flask application entry point
-├── venv/                    # Python virtual environment
+├── database/
+│   └── app.db               # SQLite database file, created on first run
+├── .venv/                   # Python virtual environment
+├── tests/                   # Translation endpoint tests
 ├── requirements.txt         # Python dependencies
 └── README.md               # This file
 ```
@@ -64,27 +68,37 @@ notetaking-app/
 
 1. **Clone or download the project**
    ```bash
-   python -m venv venv
+   python3.12 -m venv .venv
    ```
 
 2. **Activate the virtual environment**
    ```bash
-   source venv/bin/activate
+   source .venv/bin/activate
    ```
 
-   Remark: On Windows, use `venv\Scripts\activate`
+   Remark: On Windows, use `.venv\Scripts\activate`
 
 3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run the application**
+4. **Configure Supabase (optional for local development)**
+   Open `.env` and set `DATABASE_URL` to the **Transaction pooler → URI** from Supabase's **Connect** dialog.
+   Replace `[YOUR-PASSWORD]` in Supabase's URI with your database password. If the password contains URI special characters such as `@`, `#`, `/`, or `?`, percent-encode them before inserting it. The `.env` file is ignored by Git; never commit or share the full URI. If you leave `DATABASE_URL` unset, the app uses local SQLite instead. Existing SQLite notes are not copied to Supabase automatically.
+
+5. **Run the application**
+   Set your OpenRouter API key in `.env` (do not commit this file):
+   ```dotenv
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   OPENROUTER_MODEL=qwen/qwen3.8-27b:free
+   ```
+   The free Qwen model is the default; `OPENROUTER_MODEL` can override it. Set the same OpenRouter variables in Vercel when deploying.
    ```bash
    python src/main.py
    ```
 
-5. **Access the application**
+6. **Access the application**
    - Open your browser and go to `http://localhost:5001`
 
 ## 📡 API Endpoints
@@ -96,6 +110,9 @@ notetaking-app/
 - `PUT /api/notes/<id>` - Update a note
 - `DELETE /api/notes/<id>` - Delete a note
 - `GET /api/notes/search?q=<query>` - Search notes
+- `POST /api/translate` - Translate editor text without saving it; accepts `title`, `content`, and `target_language` (`zh` or `en`)
+
+The translation endpoint sends the title and content to OpenRouter. It returns translated `title` and `content` fields; the browser leaves the saved note unchanged until you click **Save**.
 
 ### Request/Response Format
 ```json
@@ -145,20 +162,27 @@ CREATE TABLE note (
 
 ## 🚀 Deployment
 
-The application is configured for easy deployment with:
-- CORS enabled for cross-origin requests
-- Host binding to `0.0.0.0` for external access
-- Production-ready Flask configuration
-- Persistent SQLite database
+To deploy on Vercel, import this GitHub repository as a new project and keep the project root as the Root Directory. The Flask entry point is `api/index.py`; `vercel.json` routes the site and API requests to it. Set these environment variables in Vercel for the Production environment before deploying:
+
+- `DATABASE_URL`: Supabase Transaction pooler URI. This is required for persistent notes on Vercel.
+- `OPENROUTER_API_KEY`: OpenRouter key for translation.
+- `OPENROUTER_MODEL`: `qwen/qwen3.8-27b:free` (optional; this is already the default).
+
+Copy the values from your local `.env` into Vercel's Environment Variables settings. Do not upload `.env` or commit the keys to Git. After deploying, check the public URL, `/api/notes`, and a translation. Disable Vercel's **Require log in** deployment protection if the exercise requires a public link.
+
+This app currently has no sign-in or per-user note separation. Anyone who can open the public URL can read, edit, and delete notes in the connected database; use a database meant for the public exercise.
 
 ## 🔧 Configuration
 
 ### Environment Variables
 - `FLASK_ENV`: Set to `development` for debug mode
 - `SECRET_KEY`: Flask secret key for sessions
+- `OPENROUTER_API_KEY`: Required for translation
+- `OPENROUTER_MODEL`: Optional model override; defaults to `qwen/qwen3.8-27b:free`
+- `DATABASE_URL`: Supabase Transaction pooler URI; leave unset to use local SQLite. Configure the same variable in Vercel's project environment settings when deploying.
 
 ### Database Configuration
-- Database file: `src/database/app.db`
+- Database file without `DATABASE_URL`: `database/app.db`
 - Automatic table creation on first run
 - SQLAlchemy ORM for database operations
 
@@ -205,4 +229,3 @@ Potential improvements for future versions:
 ---
 
 **Built with ❤️ using Flask, SQLite, and modern web technologies**
-
