@@ -162,7 +162,7 @@ CREATE TABLE note (
 
 ## 🚀 Deployment
 
-To deploy on Vercel, import this GitHub repository as a new project and keep the project root as the Root Directory. The Flask entry point is `api/index.py`; `vercel.json` routes the site and API requests to it. Set these environment variables in Vercel for the Production environment before deploying:
+To deploy on Vercel, import this GitHub repository as a new project and keep the project root as the Root Directory. Vercel detects the Flask app in `src/main.py` and routes site and API requests to it. Set these environment variables in Vercel for the Production environment before deploying:
 
 - `DATABASE_URL`: Supabase Transaction pooler URI. This is required for persistent notes on Vercel.
 - `OPENROUTER_API_KEY`: OpenRouter key for translation.
