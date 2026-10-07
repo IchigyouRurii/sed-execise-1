@@ -48,6 +48,8 @@ with app.app_context():
 def serve(path):
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found.'}), 404
+    if path == 'favicon.ico':
+        return '', 204
 
     static_folder_path = app.static_folder
     if static_folder_path is None:

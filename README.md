@@ -47,8 +47,7 @@ notetaking-app/
 │   │   ├── note.py          # Note API endpoints
 │   │   └── translate.py     # Translation endpoint
 │   ├── static/
-│   │   ├── index.html       # Frontend application
-│   │   └── favicon.ico      # Application icon
+│   │   └── index.html       # Frontend application
 │   └── main.py              # Flask application entry point
 ├── database/
 │   └── app.db               # SQLite database file, created on first run
