@@ -3,7 +3,7 @@ import sys
 # DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, redirect, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from sqlalchemy.pool import NullPool
@@ -49,7 +49,7 @@ def serve(path):
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found.'}), 404
     if path == 'favicon.ico':
-        return '', 204
+        return redirect('/favicon.svg', code=307)
 
     static_folder_path = app.static_folder
     if static_folder_path is None:

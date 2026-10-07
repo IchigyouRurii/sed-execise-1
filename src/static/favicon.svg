@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NoteTaker notebook">
+  <rect x="4" y="4" width="56" height="56" rx="15" fill="#326b55"/>
+  <rect x="17" y="13" width="31" height="38" rx="5" fill="#fffefa"/>
+  <path d="M24 13v38" stroke="#bdd5c1" stroke-width="3"/>
+  <path d="M31 26h11M31 35h9" fill="none" stroke="#326b55" stroke-linecap="round" stroke-width="3"/>
+</svg>
